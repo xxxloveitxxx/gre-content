@@ -1,4 +1,3 @@
-'use server';
 /**
  * @fileOverview Internal Genkit flow for Replyze AI admins using Hormozi frameworks to attract Real Estate Agents.
  */
