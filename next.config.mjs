@@ -1,6 +1,5 @@
-import type {NextConfig} from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   /* config options here */
   output: 'export',
   basePath: '/gre-content',
@@ -61,7 +60,7 @@ const nextConfig: NextConfig = {
       };
 
       config.plugins.push(
-        new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: any) => {
+        new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
           resource.request = resource.request.replace(/^node:/, '');
         })
       );
