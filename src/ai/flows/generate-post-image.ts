@@ -1,3 +1,4 @@
+'use server';
 /**
  * @fileOverview A Genkit flow for generating professional real estate images for social posts.
  */
