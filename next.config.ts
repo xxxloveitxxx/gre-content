@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   output: 'export',
   
   // ✅ Your basePath for /gre-content routing
-  basePath: '/gre-content',
+  basePath: '',
   
   // ✅ CRITICAL: 'images' must be at ROOT level, NOT inside experimental
   images: {
