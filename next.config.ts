@@ -4,10 +4,10 @@ const nextConfig: NextConfig = {
   // ✅ Required for static export to Firebase Hosting
   output: 'export',
   
-  // ✅ Keep your basePath (deploying to yourdomain.com/gre-content)
+  // ✅ Your basePath for /gre-content routing
   basePath: '/gre-content',
   
-  // ✅ Image optimization settings for static export
+  // ✅ CRITICAL: 'images' must be at ROOT level, NOT inside experimental
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
     ],
   },
   
-  // ✅ Skip type/lint errors during build (optional but helpful for CI)
+  // ✅ Skip type/lint errors during CI build
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -37,8 +37,8 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   
-  // ✅ Exclude server-only packages from static bundle (Next.js 15+)
-  // This prevents gRPC/OpenTelemetry/Genkit from breaking the build
+  // ✅ CRITICAL: Exclude server-only packages from static bundle
+  // This prevents @grpc/grpc-js, @opentelemetry, genkit from breaking the build
   serverExternalPackages: [
     '@grpc/grpc-js',
     '@opentelemetry/*',
@@ -46,12 +46,12 @@ const nextConfig: NextConfig = {
     'genkit',
   ],
   
-  // ✅ Webpack fallbacks for Node.js built-ins (extra safety for browser build)
+  // ✅ Webpack fallbacks for Node.js built-ins (extra safety)
   webpack: (config, { isServer, webpack }) => {
     if (!isServer) {
-      // Fallback Node.js modules to empty/false for browser
       config.resolve.fallback = {
         ...config.resolve.fallback,
+        // Node.js built-ins that don't exist in browser
         fs: false,
         net: false,
         tls: false,
@@ -73,13 +73,12 @@ const nextConfig: NextConfig = {
         util: false,
         perf_hooks: false,
         canvas: false,
-        // Keep these for compatibility
         assert: false,
         querystring: false,
         url: false,
       };
 
-      // Strip 'node:' prefix from imports (helps with some packages)
+      // Strip 'node:' prefix from imports
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: any) => {
           resource.request = resource.request.replace(/^node:/, '');
