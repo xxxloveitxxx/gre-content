@@ -1,40 +1,55 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // ✅ Required for static export to Firebase Hosting
   output: 'export',
+  
+  // ✅ Keep your basePath (deploying to yourdomain.com/gre-content)
   basePath: '/gre-content',
+  
+  // ✅ Image optimization settings for static export
   images: {
     unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'placehold.co',
-        port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-        port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'picsum.photos',
-        port: '',
         pathname: '/**',
       },
     ],
   },
+  
+  // ✅ Skip type/lint errors during build (optional but helpful for CI)
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
+  
+  // ✅ Exclude server-only packages from static bundle (Next.js 15+)
+  // This prevents gRPC/OpenTelemetry/Genkit from breaking the build
+  serverExternalPackages: [
+    '@grpc/grpc-js',
+    '@opentelemetry/*',
+    '@genkit-ai/*',
+    'genkit',
+  ],
+  
+  // ✅ Webpack fallbacks for Node.js built-ins (extra safety for browser build)
   webpack: (config, { isServer, webpack }) => {
     if (!isServer) {
+      // Fallback Node.js modules to empty/false for browser
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
@@ -58,8 +73,13 @@ const nextConfig: NextConfig = {
         util: false,
         perf_hooks: false,
         canvas: false,
+        // Keep these for compatibility
+        assert: false,
+        querystring: false,
+        url: false,
       };
 
+      // Strip 'node:' prefix from imports (helps with some packages)
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: any) => {
           resource.request = resource.request.replace(/^node:/, '');
