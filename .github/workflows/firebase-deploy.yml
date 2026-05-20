@@ -24,7 +24,11 @@ jobs:
 
       - name: Build Next.js static export
         run: npm run build  # Creates /out folder [[19]]
-
+        env:
+         NODE_OPTIONS: "--max-old-space-size=4096"
+         GENKIT_TELEMETRY_ENABLED: "false"        # ✅ Add this
+         OTEL_TRACES_EXPORTER: "none"              # ✅ Add this
+         OTEL_METRICS_EXPORTER: "none"             # ✅ Add this
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
