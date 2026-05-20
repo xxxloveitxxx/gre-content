@@ -2,9 +2,9 @@ name: Deploy to Firebase Hosting
 
 on:
   push:
-    branches: [ main ]  # Deploy when code merges to main
+    branches: [ main ]
   pull_request:
-    branches: [ main ]  # Optional: preview PRs
+    branches: [ main ]
 
 jobs:
   build_and_deploy:
@@ -16,25 +16,27 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'  # Match your local Node version
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build Next.js static export
-        run: npm run build  # Creates /out folder [[19]]
+        run: npm run build
         env:
-         NODE_OPTIONS: "--max-old-space-size=4096"
-         GENKIT_TELEMETRY_ENABLED: "false"        # ✅ Add this
-         OTEL_TRACES_EXPORTER: "none"              # ✅ Add this
-         OTEL_METRICS_EXPORTER: "none"             # ✅ Add this
+          NODE_OPTIONS: "--max-old-space-size=4096"
+          GENKIT_TELEMETRY_ENABLED: "false"
+          OTEL_TRACES_EXPORTER: "none"
+          OTEL_METRICS_EXPORTER: "none"
+          NEXT_TELEMETRY_DISABLED: "1"
+
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GRE_CONTENT }}'
-          projectId: content-gre  # ⚠️ REPLACE with your actual Firebase Project ID
-          entryPoint: '.'  # Root of repo
-        env:
-          FIREBASE_PROJECT: content-gre  # ⚠️ REPLACE with your Project ID
+          projectId: content-gre
+          entryPoint: '.'
+          expires: 7d
+          channelId: ${{ github.event.pull_request.number && format('pr-{0}', github.event.pull_request.number) || 'live' }}
