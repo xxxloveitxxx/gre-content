@@ -9,8 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sparkles, Loader2, SendHorizontal, Image as ImageIcon, FileText, Zap, Shield, TrendingUp } from 'lucide-react';
-import { generateSocialMediaPosts } from '@/ai/flows/generate-social-media-posts';
-import { generatePostImage } from '@/ai/flows/generate-post-image';
 import { Platform, SocialPost, PromptTemplate } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
