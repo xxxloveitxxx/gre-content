@@ -1,13 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // ✅ Required for static export to Firebase Hosting
   output: 'export',
-  
-  // ✅ Your basePath for /gre-content routing
   basePath: '',
   
-  // ✅ CRITICAL: 'images' must be at ROOT level, NOT inside experimental
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -29,7 +25,6 @@ const nextConfig: NextConfig = {
     ],
   },
   
-  // ✅ Skip type/lint errors during CI build
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -37,8 +32,6 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   
-  // ✅ CRITICAL: Exclude server-only packages from static bundle
-  // This prevents @grpc/grpc-js, @opentelemetry, genkit from breaking the build
   serverExternalPackages: [
     '@grpc/grpc-js',
     '@opentelemetry/*',
@@ -46,19 +39,19 @@ const nextConfig: NextConfig = {
     'genkit',
   ],
   
-  // ✅ Webpack fallbacks for Node.js built-ins (extra safety)
+  // Enable source maps to debug production errors
+  productionBrowserSourceMaps: true,
+  
   webpack: (config, { isServer, webpack }) => {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
-        // Node.js built-ins that don't exist in browser
+        // ✅ Keep these disabled (not available in browser)
         fs: false,
         net: false,
         tls: false,
-        crypto: false,
         os: false,
         path: false,
-        stream: false,
         http: false,
         https: false,
         zlib: false,
@@ -67,18 +60,26 @@ const nextConfig: NextConfig = {
         child_process: false,
         async_hooks: false,
         dgram: false,
-        process: false,
-        buffer: false,
-        events: false,
-        util: false,
         perf_hooks: false,
         canvas: false,
         assert: false,
         querystring: false,
-        url: false,
+        
+        // 🔥 CRITICAL FIX FOR FIREBASE V11 + REACT 19:
+        // Let webpack use browser-native implementations instead of forcing `false`
+        // Setting these to `false` breaks Firebase's internal module resolution
+        crypto: undefined,
+        buffer: undefined,
+        stream: undefined,
+        events: undefined,
+        util: undefined,
+        url: undefined,
+        process: undefined,
+        timers: undefined,
+        string_decoder: undefined,
       };
 
-      // Strip 'node:' prefix from imports
+      // Strip 'node:' prefix from imports for better compatibility
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: any) => {
           resource.request = resource.request.replace(/^node:/, '');
