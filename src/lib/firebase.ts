@@ -12,10 +12,27 @@ const firebaseConfig = {
 
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// Temporarily disable analytics to isolate the error
-export const initAnalytics = async () => {
-  console.debug("Firebase Analytics disabled for debugging");
-  return null;
-};
-
 export { app };
+
+// ✅ Ultra-safe analytics init: fully lazy + error-isolated
+export const initAnalytics = async () => {
+  if (typeof window === "undefined") return null;
+  
+  try {
+    // Dynamic import avoids bundling Firebase Analytics if not needed
+    const { getAnalytics, isSupported } = await import("firebase/analytics");
+    
+    // Small delay ensures React hydration is complete
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    const supported = await isSupported();
+    if (supported) {
+      return getAnalytics(app);
+    }
+    return null;
+  } catch (error) {
+    // Never let analytics errors crash the app
+    console.warn("Firebase Analytics skipped:", error);
+    return null;
+  }
+};
