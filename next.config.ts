@@ -39,14 +39,16 @@ const nextConfig: NextConfig = {
     'genkit',
   ],
   
-  // Enable source maps to debug production errors
   productionBrowserSourceMaps: true,
   
   webpack: (config, { isServer, webpack }) => {
     if (!isServer) {
+      // ✅ Only disable Node.js built-ins that truly don't exist in browser
+      // ✅ Remove entries that webpack can handle natively or Firebase needs
       config.resolve.fallback = {
         ...config.resolve.fallback,
-        // ✅ Keep these disabled (not available in browser)
+        
+        // ❌ Disable these (not available in browser, not needed by Firebase)
         fs: false,
         net: false,
         tls: false,
@@ -65,19 +67,20 @@ const nextConfig: NextConfig = {
         assert: false,
         querystring: false,
         
-        // 🔥 CRITICAL FIX FOR FIREBASE V11 + REACT 19:
-        // Let webpack use browser-native implementations instead of forcing `false`
-        // Setting these to `false` breaks Firebase's internal module resolution
-        crypto: undefined,
-        buffer: undefined,
-        stream: undefined,
-        events: undefined,
-        util: undefined,
-        url: undefined,
-        process: undefined,
-        timers: undefined,
-        string_decoder: undefined,
+        // ✅ REMOVE these entries entirely (let webpack/browser handle them):
+        // crypto, buffer, stream, events, util, url, process, timers, string_decoder
+        // Deleting them prevents webpack validation errors AND lets Firebase work
       };
+
+      // Remove any undefined/null fallbacks that might have been set
+      const fallback = config.resolve.fallback;
+      if (fallback) {
+        Object.keys(fallback).forEach(key => {
+          if (fallback[key] === undefined || fallback[key] === null) {
+            delete fallback[key];
+          }
+        });
+      }
 
       // Strip 'node:' prefix from imports for better compatibility
       config.plugins.push(
