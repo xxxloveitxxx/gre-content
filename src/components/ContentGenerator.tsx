@@ -12,6 +12,8 @@ import { Sparkles, Loader2, SendHorizontal, Image as ImageIcon, FileText, Zap, S
 import { Platform, SocialPost, PromptTemplate } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { generateSocialMediaPostsAction } from '@/lib/actions';
+import { generatePostImage } from '@/lib/puter-service';
 
 interface ContentGeneratorProps {
   onGenerated: (posts: SocialPost[]) => void;
@@ -41,13 +43,13 @@ export default function ContentGenerator({ onGenerated, templates }: ContentGene
     
     setIsGenerating(true);
     try {
-      const postsResult = await generateSocialMediaPosts({
+      const postsResult = await generateSocialMediaPostsAction({
         topic,
         platforms: selectedPlatforms as any,
         tone,
       });
 
-      const newPosts: SocialPost[] = await Promise.all(postsResult.map(async (post) => {
+      const newPosts: SocialPost[] = await Promise.all(postsResult.map(async (post: any) => {
         let imageUrl = undefined;
         if (generateImages && post.imagePrompt) {
           try {
