@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   
-  // ✅ CRITICAL: These packages MUST NOT be in client bundle for static export
+  // ✅ These packages are server-only and must not be in client bundle
   serverExternalPackages: [
     '@grpc/grpc-js',
     '@opentelemetry/*',
@@ -51,35 +51,27 @@ const nextConfig: NextConfig = {
         querystring: false,
       };
 
-      // ✅ CRITICAL: Use webpack externals to completely exclude server packages from client bundle
-      config.externals = [
-        ...(config.externals || []),
-        '@grpc/grpc-js',
-        '@opentelemetry/api',
-        '@opentelemetry/sdk-node',
-        '@genkit-ai/core',
-        '@genkit-ai/google-genai',
-        'genkit',
-        'express',
-        'body-parser',
-        'cors',
-      ].reduce((acc, pkg) => {
-        // Handle wildcard patterns like '@opentelemetry/*'
-        if (pkg.endsWith('/*')) {
-          const prefix = pkg.slice(0, -2);
-          acc.push((context: any, request: any, callback: any) => {
-            if (request.startsWith(prefix)) {
-              return callback(null, 'commonjs ' + request);
-            }
-            callback();
-          });
-        } else {
-          acc.push(pkg);
-        }
-        return acc;
-      }, [] as any[]);
+      // ✅ CRITICAL: Proper externals config for scoped packages
+      // Use object syntax: 'package-name': 'commonjs package-name'
+      config.externals = {
+        ...(config.externals as any),
+        // gRPC + OpenTelemetry (server-only)
+        '@grpc/grpc-js': 'commonjs @grpc/grpc-js',
+        '@opentelemetry/api': 'commonjs @opentelemetry/api',
+        '@opentelemetry/sdk-node': 'commonjs @opentelemetry/sdk-node',
+        '@opentelemetry/sdk-trace-base': 'commonjs @opentelemetry/sdk-trace-base',
+        // Genkit (server-only AI framework)
+        'genkit': 'commonjs genkit',
+        '@genkit-ai/core': 'commonjs @genkit-ai/core',
+        '@genkit-ai/google-genai': 'commonjs @genkit-ai/google-genai',
+        '@genkit-ai/flow': 'commonjs @genkit-ai/flow',
+        // Express + related (server framework)
+        'express': 'commonjs express',
+        'body-parser': 'commonjs body-parser',
+        'cors': 'commonjs cors',
+      };
 
-      // Strip 'node:' prefix
+      // Strip 'node:' prefix from imports
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(/^node:/, (resource: any) => {
           resource.request = resource.request.replace(/^node:/, '');
