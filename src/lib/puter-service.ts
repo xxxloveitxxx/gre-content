@@ -1,20 +1,24 @@
-'use client';
-
-import { puter } from '@heyputer/puter.js';
-
-export async function generatePostImage({ prompt }: { prompt: string }): Promise<string> {
+export async function generatePostImage({ prompt }: { prompt: string }) {
   try {
-    const imageElement = await puter.ai.txt2img(prompt, { model: 'flux-schnell' });
+    const response = await fetch('https://api.pixazo.ai/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.PIXAZO_API_KEY}`,
+      },
+      body: JSON.stringify({ 
+        prompt, 
+        model: 'flux-schnell',
+        num_inference_steps: 4,
+      }),
+    });
 
-    // puter.ai.txt2img returns an HTMLImageElement
-    if (imageElement instanceof HTMLImageElement) {
-      return imageElement.src;
-    }
-
-    // Fallback or if it returns something else
-    return (imageElement as any).src || '';
+    if (!response.ok) throw new Error('Pixazo API error');
+    
+    const data = await response.json();
+    return data.url || data.image_url;
   } catch (error) {
-    console.error('Puter image generation error:', error);
-    throw error;
+    console.error('Image generation failed:', error);
+    return undefined;
   }
 }
