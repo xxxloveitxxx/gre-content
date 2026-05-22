@@ -1,11 +1,28 @@
-import type {Metadata} from 'next';
-import './globals.css';
-import { Toaster } from "@/components/ui/toaster"
-import ClientLayout from './ClientLayout';
+import type { Metadata, Viewport } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
+import ClientLayout from "./ClientLayout";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 export const metadata: Metadata = {
-  title: 'Replyze AI | Real Estate Agent Content Powerhouse',
-  description: 'Automated social media and lead nurturing for real estate agents at replyzeai.com.',
+  title: "NEXUS | AI Command Center",
+  description: "Next-generation AI-powered content creation and management platform.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a14",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -14,16 +31,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased selection:bg-primary/20">
-        <ClientLayout>
-          {children}
-        </ClientLayout>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable} bg-background`}>
+      <body className="font-sans antialiased selection:bg-primary/30 selection:text-primary-foreground">
+        <ClientLayout>{children}</ClientLayout>
         <Toaster />
       </body>
     </html>
