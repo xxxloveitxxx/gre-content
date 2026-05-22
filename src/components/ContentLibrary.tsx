@@ -33,6 +33,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { PostToXDialog } from './PostToXDialog';
 
 interface ContentLibraryProps {
   posts: SocialPost[];
@@ -53,6 +54,7 @@ export default function ContentLibrary({ posts, onUpdate, onDelete }: ContentLib
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ContentStatus | 'all'>('all');
   const [editingPost, setEditingPost] = useState<SocialPost | null>(null);
+  const [postingToX, setPostingToX] = useState<SocialPost | null>(null);
   const { toast } = useToast();
 
   const filteredPosts = posts.filter(p => {
@@ -179,6 +181,9 @@ export default function ContentLibrary({ posts, onUpdate, onDelete }: ContentLib
                       <DropdownMenuItem onClick={() => setEditingPost(post)}>
                         <Edit3 className="mr-2 h-4 w-4" /> Edit Post
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setPostingToX(post)}>
+                        <Twitter className="mr-2 h-4 w-4" /> Post to X
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleCopy(post.text)}>
                         <Copy className="mr-2 h-4 w-4" /> Copy Text
                       </DropdownMenuItem>
@@ -257,6 +262,18 @@ export default function ContentLibrary({ posts, onUpdate, onDelete }: ContentLib
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Post to X Dialog */}
+      <PostToXDialog
+        post={postingToX}
+        open={!!postingToX}
+        onOpenChange={(open) => !open && setPostingToX(null)}
+        onSuccess={() => {
+          if (postingToX) {
+            changeStatus(postingToX, 'posted');
+          }
+        }}
+      />
     </div>
   );
 }
