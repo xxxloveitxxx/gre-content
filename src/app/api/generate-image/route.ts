@@ -17,10 +17,9 @@ export async function POST(request: Request) {
     }
     
     const data = await response.json();
-    console.log('Pixazo response:', data); // Debug log
     
-    // Pixazo returns image in different formats, try all
-    const imageUrl = data.url || data.image_url || data.data?.[0]?.url || data.data;
+    // Pixazo returns image URL in 'output' key
+    const imageUrl = data.output;
     
     if (!imageUrl) {
       console.error('No image URL found in response:', data);
