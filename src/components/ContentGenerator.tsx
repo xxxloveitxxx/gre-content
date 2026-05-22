@@ -44,7 +44,7 @@ export default function ContentGenerator({ onGenerated, templates }: ContentGene
     setIsGenerating(true);
     try {
       // Call the Server Action
-      const postsResult = await generateSocialMediaPostsAction({
+   //   const postsResult = await generateSocialMediaPostsAction({
       const postsResult = await generateSocialMediaPosts({
         topic,
         platforms: selectedPlatforms as any,
