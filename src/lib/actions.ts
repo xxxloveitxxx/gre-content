@@ -2,7 +2,7 @@
 
 import * as aiService from './ai-service';
 
-export async function generateSocialMediaPostsAction(data: {
+export async function generateSocialMediaPosts(data: {
   topic: string;
   platforms: string[];
   tone: string;

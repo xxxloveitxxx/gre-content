@@ -12,7 +12,7 @@ import { Sparkles, Loader2, SendHorizontal, Image as ImageIcon, FileText, Zap, S
 import { Platform, SocialPost, PromptTemplate } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { generateSocialMediaPostsAction } from '@/lib/actions';
+import { generateSocialMediaPosts } from '@/lib/actions';
 import { generatePostImage } from '@/lib/puter-service';
 
 interface ContentGeneratorProps {
@@ -45,6 +45,7 @@ export default function ContentGenerator({ onGenerated, templates }: ContentGene
     try {
       // Call the Server Action
       const postsResult = await generateSocialMediaPostsAction({
+      const postsResult = await generateSocialMediaPosts({
         topic,
         platforms: selectedPlatforms as any,
         tone,
