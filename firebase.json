@@ -1,0 +1,14 @@
+{
+  "hosting": {
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  },
+  "functions": {
+    "source": ".",
+    "runtime": "nodejs20"
+  }
+}
