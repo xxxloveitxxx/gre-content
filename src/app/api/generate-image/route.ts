@@ -7,7 +7,7 @@ export async function POST(request: Request) {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
-        'Ocp-Apim-Subscription-Key': process.env.PIXAZO_SUBSCRIPTION_KEY!,
+        'Ocp-Apim-Subscription-Key': process.env.PIXAZO_API_KEY!,
       },
       body: JSON.stringify({ prompt }),
     });
